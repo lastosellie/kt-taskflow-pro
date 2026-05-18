@@ -1,7 +1,9 @@
+import os
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError
+from fastapi.staticfiles import StaticFiles
 from .database import engine, Base
 from .routers import tasks
 
@@ -35,3 +37,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
 
 
 app.include_router(tasks.router, prefix="/api")
+
+# API 라우터 등록 후 정적 파일 서빙 — /api/* 보다 뒤에 마운트해야 우선순위 유지
+_frontend_dir = os.path.join(os.path.dirname(__file__), "..", "frontend")
+if os.path.isdir(_frontend_dir):
+    app.mount("/", StaticFiles(directory=_frontend_dir, html=True), name="static")
