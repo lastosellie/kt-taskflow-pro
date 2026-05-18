@@ -22,12 +22,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 **모든 작업 시작 전**, 아래 6개 문서를 반드시 이 순서대로 읽는다.
 읽지 않은 상태로 코드를 작성하거나 설계 결정을 내리지 않는다.
 
-1. `docs/01-overview.md` — 프로젝트 목적 및 핵심 도메인
-2. `docs/02-architecture.md` — 시스템 전체 구조 및 레이어 설계
-3. `docs/03-tech-stack.md` — 확정된 기술 스택 및 버전
-4. `docs/04-database.md` — 스키마, 관계, 마이그레이션 정책
-5. `docs/05-api.md` — API 계약 (엔드포인트, 요청/응답 형식)
-6. `docs/06-conventions.md` — 코딩 컨벤션, 네이밍 규칙, 폴더 구조 원칙
+1. `docs/00-overview.md` — 프로젝트 지도, 문서 구조, 읽는 순서
+2. `docs/01-product.md` — 타깃 사용자, 핵심 기능, 용어집
+3. `docs/02-specs.md` — 기술 스택, 시스템 아키텍처, 환경 변수
+4. `docs/03-design.md` — 화면 목록, 컴포넌트 계층, 라우팅 맵
+5. `docs/04-tasks.md` — 마일스톤, 작업 단위, 우선순위
+6. `docs/05-conventions.md` — 코딩 컨벤션, 네이밍 규칙, Git 전략
 
 ---
 
