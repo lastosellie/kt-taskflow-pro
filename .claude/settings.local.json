@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(pip --version)",
+      "Bash(python *)",
+      "Bash(backend\\\\venv\\\\Scripts\\\\pip install *)",
+      "Bash(backend/venv/Scripts/pip install *)",
+      "PowerShell(py *)",
+      "PowerShell(D:\\\\taskflow-pro\\\\backend\\\\venv\\\\Scripts\\\\pip install pydantic --only-binary=:all: 2>&1 | Select-Object -Last 5)",
+      "PowerShell(D:\\\\taskflow-pro\\\\backend\\\\venv\\\\Scripts\\\\pip install fastapi==0.115.9 \"uvicorn[standard]==0.34.3\" sqlalchemy==2.0.40 httpx==0.28.1 pytest==8.3.5 --quiet 2>&1 | Select-Object -Last 3)",
+      "PowerShell(Start-Process -FilePath \"D:\\\\taskflow-pro\\\\backend\\\\venv\\\\Scripts\\\\uvicorn.exe\" -ArgumentList \"backend.main:app\", \"--reload\", \"--host\", \"0.0.0.0\", \"--port\", \"8000\" -WorkingDirectory \"D:\\\\taskflow-pro\" -WindowStyle Normal; Start-Sleep -Seconds 3; try { $r = Invoke-WebRequest -Uri \"http://localhost:8000/docs\" -UseBasicParsing -TimeoutSec 5; Write-Output \"Swagger OK: $\\($r.StatusCode\\)\" } catch { Write-Output \"ERROR: $_\" })"
+    ]
+  }
+}
