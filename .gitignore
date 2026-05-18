@@ -10,3 +10,9 @@ backend/tasks.db
 # 환경 변수
 .env
 .env.*
+
+# 브라우저 자동화 임시 파일
+.playwright-mcp/
+
+# 임시 스크린샷
+screenshot-*.png

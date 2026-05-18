@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskFlow Pro</title>
+
+  <!-- FOUC 방지: 렌더 전 동기 실행으로 dark 클래스 즉시 주입 -->
+  <script src="theme.js"></script>
+
+  <!-- Tailwind CDN (Play) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'Roboto', 'sans-serif'],
+          },
+        },
+      },
+    };
+  </script>
+</head>
+
+<body class="min-h-screen bg-gray-50 dark:bg-gray-900 font-sans transition-colors duration-200">
+
+  <!-- ── 헤더 ──────────────────────────────────────────── -->
+  <header class="sticky top-0 z-40
+                 bg-white/80 dark:bg-gray-900/80
+                 backdrop-blur-md
+                 border-b border-gray-200/60 dark:border-gray-700/60">
+    <div class="max-w-5xl mx-auto px-4 h-16 flex items-center gap-3">
+      <h1 class="flex-1 text-base font-semibold text-gray-800 dark:text-gray-100 tracking-tight">
+        🗂 TaskFlow Pro
+      </h1>
+
+      <!-- 테마 토글 -->
+      <button id="btn-theme"
+              class="min-w-[44px] min-h-[44px] flex items-center justify-center
+                     rounded-xl text-lg
+                     hover:bg-gray-100 dark:hover:bg-gray-800
+                     transition-colors"
+              title="라이트 / 다크 전환"
+              aria-label="테마 전환">
+        <span id="theme-icon">🌙</span>
+      </button>
+
+      <!-- 새 태스크 -->
+      <button id="btn-add"
+              class="min-h-[44px] px-4 rounded-xl
+                     bg-blue-500 hover:bg-blue-600 active:bg-blue-700
+                     text-white text-sm font-medium
+                     shadow-sm transition-colors">
+        + 새 태스크
+      </button>
+    </div>
+  </header>
+
+  <!-- ── 메인 ──────────────────────────────────────────── -->
+  <main class="max-w-5xl mx-auto px-4 py-6">
+
+    <!-- 에러 배너 -->
+    <div id="error-banner"
+         class="hidden mb-5 px-4 py-3 rounded-xl text-sm
+                bg-red-50 dark:bg-red-900/20
+                border border-red-200 dark:border-red-800
+                text-red-700 dark:text-red-400">
+    </div>
+
+    <!-- 추가 폼 -->
+    <section id="add-form-section"
+             class="hidden mb-6
+                    bg-white/90 dark:bg-gray-800/90
+                    backdrop-blur-sm rounded-2xl shadow-lg
+                    border border-gray-200/60 dark:border-gray-700/60
+                    p-5">
+      <h2 class="text-sm font-semibold text-gray-700 dark:text-gray-200 mb-4">새 태스크 추가</h2>
+      <form id="add-form" class="space-y-3">
+
+        <input id="add-title" type="text" placeholder="제목 *"
+               required maxlength="200"
+               class="w-full px-3 py-2.5 text-sm rounded-xl
+                      border border-gray-300 dark:border-gray-600
+                      bg-white dark:bg-gray-900
+                      text-gray-800 dark:text-gray-100
+                      placeholder:text-gray-400 dark:placeholder:text-gray-500
+                      focus:outline-none focus:ring-2 focus:ring-blue-400" />
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <input id="add-due" type="datetime-local"
+                 class="flex-1 px-3 py-2.5 text-sm rounded-xl
+                        border border-gray-300 dark:border-gray-600
+                        bg-white dark:bg-gray-900
+                        text-gray-800 dark:text-gray-100
+                        focus:outline-none focus:ring-2 focus:ring-blue-400" />
+
+          <select id="add-status"
+                  class="flex-1 px-3 py-2.5 text-sm rounded-xl
+                         border border-gray-300 dark:border-gray-600
+                         bg-white dark:bg-gray-900
+                         text-gray-800 dark:text-gray-100
+                         focus:outline-none focus:ring-2 focus:ring-blue-400">
+            <option value="todo">Todo</option>
+            <option value="in_progress">In Progress</option>
+            <option value="done">Done</option>
+          </select>
+        </div>
+
+        <textarea id="add-desc" placeholder="설명 (선택)" rows="2"
+                  class="w-full px-3 py-2.5 text-sm rounded-xl resize-none
+                         border border-gray-300 dark:border-gray-600
+                         bg-white dark:bg-gray-900
+                         text-gray-800 dark:text-gray-100
+                         placeholder:text-gray-400 dark:placeholder:text-gray-500
+                         focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+
+        <div class="flex justify-end gap-2 pt-1">
+          <button type="button" id="btn-add-cancel"
+                  class="min-h-[44px] px-4 rounded-xl text-sm font-medium
+                         bg-gray-100 hover:bg-gray-200
+                         dark:bg-gray-700 dark:hover:bg-gray-600
+                         text-gray-700 dark:text-gray-300
+                         transition-colors">
+            취소
+          </button>
+          <button type="submit"
+                  class="min-h-[44px] px-5 rounded-xl text-sm font-medium
+                         bg-blue-500 hover:bg-blue-600
+                         text-white shadow-sm transition-colors
+                         disabled:opacity-50 disabled:cursor-not-allowed">
+            저장
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- 태스크 목록 -->
+    <div id="task-list"
+         class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+    </div>
+
+  </main>
+
+  <!-- ── 수정 모달 ──────────────────────────────────────── -->
+  <div id="edit-modal"
+       class="hidden fixed inset-0 z-50
+              bg-black/40 backdrop-blur-sm
+              flex items-center justify-center p-4"
+       role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+
+    <div class="w-full max-w-md
+                bg-white/95 dark:bg-gray-800/95 backdrop-blur-md
+                rounded-2xl shadow-2xl
+                border border-gray-200/60 dark:border-gray-700/60
+                p-6">
+
+      <div class="flex items-center justify-between mb-5">
+        <h2 id="edit-modal-title"
+            class="text-base font-semibold text-gray-800 dark:text-gray-100">
+          태스크 수정
+        </h2>
+        <button id="btn-edit-close"
+                class="min-w-[44px] min-h-[44px] flex items-center justify-center
+                       rounded-xl text-gray-400 hover:text-gray-600 dark:hover:text-gray-200
+                       hover:bg-gray-100 dark:hover:bg-gray-700
+                       transition-colors text-lg"
+                aria-label="모달 닫기">
+          ✕
+        </button>
+      </div>
+
+      <form id="edit-form" class="space-y-3">
+
+        <input id="edit-title" type="text" placeholder="제목 *"
+               required maxlength="200"
+               class="w-full px-3 py-2.5 text-sm rounded-xl
+                      border border-gray-300 dark:border-gray-600
+                      bg-white dark:bg-gray-900
+                      text-gray-800 dark:text-gray-100
+                      placeholder:text-gray-400
+                      focus:outline-none focus:ring-2 focus:ring-blue-400" />
+
+        <textarea id="edit-desc" placeholder="설명 (선택)" rows="2"
+                  class="w-full px-3 py-2.5 text-sm rounded-xl resize-none
+                         border border-gray-300 dark:border-gray-600
+                         bg-white dark:bg-gray-900
+                         text-gray-800 dark:text-gray-100
+                         placeholder:text-gray-400
+                         focus:outline-none focus:ring-2 focus:ring-blue-400"></textarea>
+
+        <div class="flex flex-col sm:flex-row gap-3">
+          <select id="edit-status"
+                  class="flex-1 px-3 py-2.5 text-sm rounded-xl
+                         border border-gray-300 dark:border-gray-600
+                         bg-white dark:bg-gray-900
+                         text-gray-800 dark:text-gray-100
+                         focus:outline-none focus:ring-2 focus:ring-blue-400">
+            <option value="todo">Todo</option>
+            <option value="in_progress">In Progress</option>
+            <option value="done">Done</option>
+          </select>
+
+          <input id="edit-due" type="datetime-local"
+                 class="flex-1 px-3 py-2.5 text-sm rounded-xl
+                        border border-gray-300 dark:border-gray-600
+                        bg-white dark:bg-gray-900
+                        text-gray-800 dark:text-gray-100
+                        focus:outline-none focus:ring-2 focus:ring-blue-400" />
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" id="btn-edit-cancel"
+                  class="min-h-[44px] px-4 rounded-xl text-sm font-medium
+                         bg-gray-100 hover:bg-gray-200
+                         dark:bg-gray-700 dark:hover:bg-gray-600
+                         text-gray-700 dark:text-gray-300
+                         transition-colors">
+            취소
+          </button>
+          <button type="submit"
+                  class="min-h-[44px] px-5 rounded-xl text-sm font-medium
+                         bg-blue-500 hover:bg-blue-600
+                         text-white shadow-sm transition-colors
+                         disabled:opacity-50 disabled:cursor-not-allowed">
+            저장
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
