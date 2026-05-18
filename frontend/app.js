@@ -1,5 +1,7 @@
 // ─── 상태 (모듈 스코프 단일 진실 공급원) ─────────────────
-const API = 'http://localhost:8000/api';
+const API = ['localhost', '127.0.0.1'].includes(window.location.hostname)
+  ? 'http://localhost:8000/api'
+  : '/api';
 let tasks = [];
 let pollingTimer = null;
 let editingId = null;

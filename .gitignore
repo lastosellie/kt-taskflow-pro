@@ -16,3 +16,7 @@ backend/tasks.db
 
 # 임시 스크린샷
 screenshot-*.png
+
+# Vercel 빌드 출력
+public/
+.vercel/
