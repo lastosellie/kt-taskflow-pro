@@ -100,13 +100,29 @@ function renderTasks() {
       confirmDelete(Number(el.dataset.deleteId));
     })
   );
+  // 마감 시각 인라인 편집
+  container.querySelectorAll('[data-due-edit]').forEach((el) =>
+    el.addEventListener('click', (e) => {
+      e.stopPropagation(); // 카드 클릭(수정 모달) 방지
+      openInlineDueEdit(Number(el.dataset.dueEdit), el);
+    })
+  );
 }
 
 function taskCardHTML(t) {
   const due = formatDueAt(t.due_at);
+  // 클릭하면 인라인 datetime-local 입력기로 전환
   const dueHTML = due
-    ? `<span class="text-xs ${due.overdue ? 'text-red-500 dark:text-red-400 font-semibold' : 'text-gray-400 dark:text-gray-500'}">${due.text}</span>`
-    : '';
+    ? `<button type="button"
+               class="text-xs mt-1 block ${due.overdue ? 'text-red-500 dark:text-red-400 font-semibold' : 'text-gray-400 dark:text-gray-500'}
+                      hover:text-blue-500 dark:hover:text-blue-400 hover:underline transition-colors text-left"
+               data-due-edit="${t.id}" data-due-iso="${t.due_at}"
+               title="클릭하여 마감 시각 변경">${due.text}</button>`
+    : `<button type="button"
+               class="text-xs mt-1 block text-gray-300 dark:text-gray-600
+                      hover:text-blue-400 dark:hover:text-blue-400 transition-colors"
+               data-due-edit="${t.id}" data-due-iso=""
+               title="마감 시각 설정">+ 마감 설정</button>`;
   return `
     <article class="group relative bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm
                     rounded-xl shadow-md hover:shadow-lg
@@ -227,6 +243,41 @@ document.getElementById('edit-form').addEventListener('submit', async (e) => {
     btn.disabled = false;
   }
 });
+
+// ─── 마감 시각 인라인 편집 ────────────────────────────────
+function openInlineDueEdit(id, btn) {
+  const input = document.createElement('input');
+  input.type = 'datetime-local';
+  input.value = isoToLocal(btn.dataset.dueIso);
+  input.className = [
+    'text-xs px-1.5 py-0.5 rounded-lg cursor-pointer',
+    'border border-blue-400 dark:border-blue-500',
+    'bg-white dark:bg-gray-900',
+    'text-gray-800 dark:text-gray-100',
+    'focus:outline-none focus:ring-1 focus:ring-blue-400',
+  ].join(' ');
+
+  let saved = false;
+
+  input.addEventListener('change', async () => {
+    saved = true;
+    try {
+      await updateTask(id, { due_at: localToISO(input.value) || null });
+    } catch (err) {
+      alert(`마감 설정 실패: ${err.message}`);
+    }
+    await fetchTasks();
+  });
+
+  // change 없이 포커스 이탈 → 원래 표시로 복원
+  input.addEventListener('blur', () => {
+    if (!saved) setTimeout(fetchTasks, 80);
+  });
+
+  btn.replaceWith(input);
+  input.focus();
+  input.showPicker?.(); // 모던 브라우저에서 달력 즉시 오픈
+}
 
 // ─── 삭제 확인 ────────────────────────────────────────────
 async function confirmDelete(id) {
